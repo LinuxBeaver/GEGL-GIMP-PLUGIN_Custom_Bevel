@@ -1,5 +1,5 @@
 
-![image preview](3.png )
+![image preview](customB_images/3.png )
 
 
 ## Compiling and Installing
