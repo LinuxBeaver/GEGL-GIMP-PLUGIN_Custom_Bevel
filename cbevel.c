@@ -79,7 +79,7 @@ property_double (elevation, _("Elevation"), 25.0)
 
 property_int (depth, _("Depth (makes darker)"), 24)
     description (_("Filter width"))
-    value_range (1, 70)
+    value_range (1, 100)
 
 
 
@@ -131,20 +131,22 @@ property_file_path(src, _("Image file Overlay - Desaturate and ligthen for best 
 
 
 
-property_double (desat, _("Desaturate for image file overlay"), 1.0)
+property_double (desat, _("Desaturate for image file and color overlay"), 1.0)
     description(_("Scale, strength of effect"))
     value_range (0.0, 1.3)
     ui_range (0.0, 1.3)
 
 
-property_double (lightness, _("Lightness that can help image file overlay brighten"), 0.0)
+property_double (lightness, _("Lightness that can help image file and color overlay"), 0.0)
    description  (_("Lightness adjustment"))
-   value_range  (-2, 18.0)
+   value_range  (-12, 26.0)
 
 property_double (hue, _("Hue Rotation"),  0.0)
    description  (_("Hue adjustment"))
    value_range  (-180.0, 180.0)
 
+property_color (coloroverlay, _("Forced Color Overlay (works best when bevel is white)"), "#ffffff")
+    description (_("The color to paint over the input"))
 
 
 
@@ -174,6 +176,9 @@ typedef struct
   GeglNode *sharpen;
   GeglNode *desat;
   GeglNode *multiply2;
+  GeglNode *nop;
+  GeglNode *mcol;
+  GeglNode *col;
   GeglNode *imagefileoverlay;
   GeglNode *lightness;
   GeglNode *output;
@@ -194,7 +199,7 @@ update_graph (GeglOperation *operation)
     case GEGL_BLEND_MODE_TYPE_DARKEN: usethis = state->darken; break;
     case GEGL_BLEND_MODE_TYPE_LIGHTEN: usethis = state->lighten; break;
   }
-  gegl_node_link_many (state->input, state->median, state->box, state->gaussian, usethis, state->opacity, state->mcb, state->sharpen, state->desat, state->multiply2, state->lightness, state->output,  NULL);
+  gegl_node_link_many (state->input, state->median, state->box, state->gaussian, usethis, state->opacity, state->mcb, state->sharpen, state->desat, state->multiply2, state->nop, state->mcol, state->lightness, state->output,  NULL);
   gegl_node_connect_from (usethis, "aux", state->emboss, "output");
 
 }
@@ -203,7 +208,7 @@ static void attach (GeglOperation *operation)
 {
   GeglNode *gegl = operation->node;
 GeglProperties *o = GEGL_PROPERTIES (operation);
-  GeglNode *input, *output, *median, *multiply, *hardlight, *colordodge, *darken, *desat, *multiply2, *lighten, *plus, *opacity, *gaussian, *emboss, *box, *lightness, *imagefileoverlay, *mcb, *sharpen;
+  GeglNode *input, *output, *median, *multiply, *hardlight, *colordodge, *darken, *desat, *multiply2, *lighten, *mcol, *col, *nop, *plus, *opacity, *gaussian, *emboss, *box, *lightness, *imagefileoverlay, *mcb, *sharpen;
 
   input    = gegl_node_get_input_proxy (gegl, "input");
   output   = gegl_node_get_output_proxy (gegl, "output");
@@ -214,6 +219,9 @@ GeglProperties *o = GEGL_PROPERTIES (operation);
                                   "operation", "gegl:median-blur",
                                   NULL);
 
+  nop    = gegl_node_new_child (gegl,
+                                  "operation", "gegl:nop",
+                                  NULL);
 
   multiply    = gegl_node_new_child (gegl,
                                   "operation", "gegl:multiply",
@@ -247,6 +255,14 @@ GeglProperties *o = GEGL_PROPERTIES (operation);
 
   opacity   = gegl_node_new_child (gegl,
                                   "operation", "gegl:opacity",
+                                  NULL);
+
+  mcol   = gegl_node_new_child (gegl,
+                                  "operation", "gegl:multiply",
+                                  NULL);
+
+  col   = gegl_node_new_child (gegl,
+                                  "operation", "gegl:color-overlay",
                                   NULL);
 
 
@@ -303,13 +319,16 @@ GeglProperties *o = GEGL_PROPERTIES (operation);
   gegl_operation_meta_redirect (operation, "box", box, "radius");
   gegl_operation_meta_redirect (operation, "type", median, "neighborhood");
   gegl_operation_meta_redirect (operation, "desat", desat, "scale");
+  gegl_operation_meta_redirect (operation, "coloroverlay", col, "value");
 
 
 
 
-  gegl_node_link_many (input, median, box, gaussian, hardlight, opacity, mcb, sharpen, desat, multiply2, lightness, output,  NULL);
+  gegl_node_link_many (input, median, box, gaussian, hardlight, opacity, mcb, sharpen, desat, multiply2, nop, mcol, lightness, output,  NULL);
   gegl_node_connect_from (hardlight, "aux", emboss, "output");
+  gegl_node_connect_from (mcol, "aux", col, "output");
   gegl_node_connect_from (multiply2, "aux", imagefileoverlay, "output");
+  gegl_node_link_many (nop, col,  NULL);
   gegl_node_link_many (gaussian, emboss,  NULL);
   gegl_node_link_many (imagefileoverlay,  NULL);
 
@@ -333,6 +352,8 @@ GeglProperties *o = GEGL_PROPERTIES (operation);
   state->sharpen = sharpen;
   state->desat = desat;
   state->multiply2 = multiply2;
+  state->nop = nop;
+  state->mcol = mcol;
   state->imagefileoverlay = imagefileoverlay;
   state->lightness = lightness;
   state->output = output;
