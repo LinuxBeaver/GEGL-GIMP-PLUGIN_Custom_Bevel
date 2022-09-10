@@ -83,9 +83,9 @@ property_int (depth, _("Depth (makes darker)"), 24)
 
 
 
-property_int  (size, _("Internal Median Blur Radius"), -5)
-  value_range (-10, 15)
-  ui_range    (-10, 15)
+property_int  (size, _("Internal Median Blur Radius"), 5)
+  value_range (0, 15)
+  ui_range    (0, 15)
   ui_meta     ("unit", "pixel-distance")
   description (_("Neighborhood radius, a negative value will calculate with inverted percentiles"))
 
