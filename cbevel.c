@@ -35,6 +35,12 @@ enum_start (gegl_blend_mode_type)
               N_("Darken"))
   enum_value (GEGL_BLEND_MODE_TYPE_LIGHTEN,      "Lighten",
               N_("Lighten"))
+  enum_value (GEGL_BLEND_MODE_TYPE_OVERLAY,      "Overlay",
+              N_("Overlay"))
+  enum_value (GEGL_BLEND_MODE_TYPE_GRAINMERGE,      "Grain Merge",
+              N_("Grain Merge"))
+  enum_value (GEGL_BLEND_MODE_TYPE_SOFTLIGHT,      "Softlight",
+              N_("Soft Light"))
 enum_end (GeglBlendModeType)
 
 property_enum (blendmode, _("Blend Mode of internal Emboss"),
@@ -51,6 +57,10 @@ enum_start (gegl_median_blur_neighborhoodcb)
 enum_end (GeglMedianBlurNeighborhoodcb)
 
 
+
+
+
+
 property_enum (type, _("Choose Internal Median Shape"),
                GeglMedianBlurNeighborhoodcb, gegl_median_blur_neighborhoodcb,
                GEGL_MEDIAN_BLUR_NEIGHBORHOOD_CIRCLEcb)
@@ -59,10 +69,10 @@ property_enum (type, _("Choose Internal Median Shape"),
 
 
 
-property_double (opacity, _("Make wider (above 2 will harm dropshadow in a graph)"), 4)
+property_double (opacity, _("Make wider (above 2 will harm dropshadow in a graph)"), 6)
     description (_("Global opacity value that is always used on top of the optional auxiliary input buffer."))
-    value_range (1.0, 4.0)
-    ui_range    (1.0, 4.0)
+    value_range (1.0, 6.0)
+    ui_range    (1.0, 6.0)
 
 
 
@@ -115,10 +125,10 @@ property_int (box, _("Internal Box Blur"), 8)
 
 property_int  (mcb, _("Smooth bevel"), 1)
   description (_("Controls the number of iterations"))
-  value_range (0, 10)
-  ui_range    (0, 10)
+  value_range (0, 6)
+  ui_range    (0, 6)
 
-property_double (sharpen, _("Sharpen"), 1)
+property_double (sharpen, _("Sharpen"), 0.2)
     description(_("Scaling factor for unsharp-mask, the strength of effect"))
     value_range (0.0, 4.5)
     ui_range    (0.0, 4.5)
@@ -181,6 +191,9 @@ typedef struct
   GeglNode *col;
   GeglNode *imagefileoverlay;
   GeglNode *lightness;
+  GeglNode *grainmerge;
+  GeglNode *overlay;
+  GeglNode *softlight;
   GeglNode *output;
 }State;
 
@@ -198,6 +211,10 @@ update_graph (GeglOperation *operation)
     case GEGL_BLEND_MODE_TYPE_PLUS: usethis = state->plus; break;
     case GEGL_BLEND_MODE_TYPE_DARKEN: usethis = state->darken; break;
     case GEGL_BLEND_MODE_TYPE_LIGHTEN: usethis = state->lighten; break;
+    case GEGL_BLEND_MODE_TYPE_OVERLAY: usethis = state->overlay; break;
+    case GEGL_BLEND_MODE_TYPE_GRAINMERGE: usethis = state->grainmerge; break;
+    case GEGL_BLEND_MODE_TYPE_SOFTLIGHT: usethis = state->softlight; break;
+
   }
   gegl_node_link_many (state->input, state->median, state->box, state->gaussian, usethis, state->opacity, state->mcb, state->sharpen, state->desat, state->multiply2, state->nop, state->mcol, state->lightness, state->output,  NULL);
   gegl_node_connect_from (usethis, "aux", state->emboss, "output");
@@ -208,7 +225,7 @@ static void attach (GeglOperation *operation)
 {
   GeglNode *gegl = operation->node;
 GeglProperties *o = GEGL_PROPERTIES (operation);
-  GeglNode *input, *output, *median, *multiply, *hardlight, *colordodge, *darken, *desat, *multiply2, *lighten, *mcol, *col, *nop, *plus, *opacity, *gaussian, *emboss, *box, *lightness, *imagefileoverlay, *mcb, *sharpen;
+  GeglNode *input, *output, *median, *multiply, *hardlight, *colordodge, *grainmerge, *softlight, *overlay, *darken, *desat, *multiply2, *lighten, *mcol, *col, *nop, *plus, *opacity, *gaussian, *emboss, *box, *lightness, *imagefileoverlay, *mcb, *sharpen;
 
   input    = gegl_node_get_input_proxy (gegl, "input");
   output   = gegl_node_get_output_proxy (gegl, "output");
@@ -299,6 +316,17 @@ GeglProperties *o = GEGL_PROPERTIES (operation);
                                   "operation", "gegl:saturation",
                                   NULL);
 
+grainmerge = gegl_node_new_child (gegl,
+                              "operation", "gimp:layer-mode", "layer-mode", 47, "composite-mode", 1, NULL);
+
+overlay = gegl_node_new_child (gegl,
+                              "operation", "gimp:layer-mode", "layer-mode", 23, "composite-mode", 3, NULL);
+
+softlight = gegl_node_new_child (gegl,
+                              "operation", "gimp:layer-mode", "layer-mode", 45, "composite-mode", 1, NULL);
+
+
+
 
  
  
@@ -356,6 +384,9 @@ GeglProperties *o = GEGL_PROPERTIES (operation);
   state->mcol = mcol;
   state->imagefileoverlay = imagefileoverlay;
   state->lightness = lightness;
+  state->grainmerge = grainmerge;
+  state->overlay = overlay;
+  state->softlight = softlight;
   state->output = output;
 
   o->user_data = state;
