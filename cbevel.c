@@ -41,9 +41,13 @@ enum_start (gegl_blend_mode_type)
               N_("Grain Merge"))
   enum_value (GEGL_BLEND_MODE_TYPE_SOFTLIGHT,      "Softlight",
               N_("Soft Light"))
+  enum_value (GEGL_BLEND_MODE_TYPE_ADDITION,      "Addition",
+              N_("Addition"))
+  enum_value (GEGL_BLEND_MODE_TYPE_EMBOSSBLEND,      "EmbossBlend",
+              N_("Image and Color Overlay Mode"))
 enum_end (GeglBlendModeType)
 
-property_enum (blendmode, _("Blend Mode of internal Emboss"),
+property_enum (blendmode, _("Blend Mode of Internal Emboss"),
     GeglBlendModeType, gegl_blend_mode_type,
     GEGL_BLEND_MODE_TYPE_HARDLIGHT)
 
@@ -194,6 +198,8 @@ typedef struct
   GeglNode *grainmerge;
   GeglNode *overlay;
   GeglNode *softlight;
+  GeglNode *addition;
+  GeglNode *embossblend;
   GeglNode *output;
 }State;
 
@@ -214,6 +220,8 @@ update_graph (GeglOperation *operation)
     case GEGL_BLEND_MODE_TYPE_OVERLAY: usethis = state->overlay; break;
     case GEGL_BLEND_MODE_TYPE_GRAINMERGE: usethis = state->grainmerge; break;
     case GEGL_BLEND_MODE_TYPE_SOFTLIGHT: usethis = state->softlight; break;
+    case GEGL_BLEND_MODE_TYPE_ADDITION: usethis = state->addition; break;
+    case GEGL_BLEND_MODE_TYPE_EMBOSSBLEND: usethis = state->embossblend; break;
 
   }
   gegl_node_link_many (state->input, state->median, state->box, state->gaussian, usethis, state->opacity, state->mcb, state->sharpen, state->desat, state->multiply2, state->nop, state->mcol, state->lightness, state->output,  NULL);
@@ -225,7 +233,7 @@ static void attach (GeglOperation *operation)
 {
   GeglNode *gegl = operation->node;
 GeglProperties *o = GEGL_PROPERTIES (operation);
-  GeglNode *input, *output, *median, *multiply, *hardlight, *colordodge, *grainmerge, *softlight, *overlay, *darken, *desat, *multiply2, *lighten, *mcol, *col, *nop, *plus, *opacity, *gaussian, *emboss, *box, *lightness, *imagefileoverlay, *mcb, *sharpen;
+  GeglNode *input, *output, *median, *multiply, *hardlight, *embossblend, *addition, *colordodge, *grainmerge, *softlight, *overlay, *darken, *desat, *multiply2, *lighten, *mcol, *col, *nop, *plus, *opacity, *gaussian, *emboss, *box, *lightness, *imagefileoverlay, *mcb, *sharpen;
 
   input    = gegl_node_get_input_proxy (gegl, "input");
   output   = gegl_node_get_output_proxy (gegl, "output");
@@ -326,6 +334,13 @@ softlight = gegl_node_new_child (gegl,
                               "operation", "gimp:layer-mode", "layer-mode", 45, "composite-mode", 1, NULL);
 
 
+addition = gegl_node_new_child (gegl,
+                                  "operation", "gimp:layer-mode", "layer-mode", 33, "composite-mode", 1, NULL); 
+
+  embossblend   = gegl_node_new_child (gegl,
+                                  "operation", "gegl:emboss", 
+                                  NULL);
+
 
 
  
@@ -372,6 +387,8 @@ softlight = gegl_node_new_child (gegl,
   state->multiply = multiply;
   state->colordodge = colordodge;
   state->emboss = emboss;
+  state->embossblend = embossblend;
+  state->addition = addition;
   state->plus = plus;
   state->darken = darken;
   state->lighten = lighten;
