@@ -22,13 +22,13 @@
 
 #ifdef GEGL_PROPERTIES
 
-enum_start (gegl_blend_mode_type)
+enum_start (gegl_blend_mode_typecbevel)
   enum_value (GEGL_BLEND_MODE_TYPE_HARDLIGHT, "Hardlight",
-              N_("Hard Light"))
+              N_("HardLight"))
   enum_value (GEGL_BLEND_MODE_TYPE_MULTIPLY,      "Multiply",
               N_("Multiply"))
   enum_value (GEGL_BLEND_MODE_TYPE_COLORDODGE,      "ColorDodge",
-              N_("Color Dodge"))
+              N_("ColorDodge"))
   enum_value (GEGL_BLEND_MODE_TYPE_PLUS,      "Plus",
               N_("Plus"))
   enum_value (GEGL_BLEND_MODE_TYPE_DARKEN,      "Darken",
@@ -37,18 +37,18 @@ enum_start (gegl_blend_mode_type)
               N_("Lighten"))
   enum_value (GEGL_BLEND_MODE_TYPE_OVERLAY,      "Overlay",
               N_("Overlay"))
-  enum_value (GEGL_BLEND_MODE_TYPE_GRAINMERGE,      "Grain Merge",
+  enum_value (GEGL_BLEND_MODE_TYPE_GRAINMERGE,      "GrainMerge",
               N_("Grain Merge"))
   enum_value (GEGL_BLEND_MODE_TYPE_SOFTLIGHT,      "Softlight",
               N_("Soft Light"))
   enum_value (GEGL_BLEND_MODE_TYPE_ADDITION,      "Addition",
               N_("Addition"))
   enum_value (GEGL_BLEND_MODE_TYPE_EMBOSSBLEND,      "EmbossBlend",
-              N_("Image and Color Overlay Mode"))
-enum_end (GeglBlendModeType)
+              N_("ImageandColorOverlayMode"))
+enum_end (GeglBlendModeTypecbevel)
 
 property_enum (blendmode, _("Blend Mode of Internal Emboss"),
-    GeglBlendModeType, gegl_blend_mode_type,
+    GeglBlendModeTypecbevel, gegl_blend_mode_typecbevel,
     GEGL_BLEND_MODE_TYPE_HARDLIGHT)
 
 
