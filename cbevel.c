@@ -103,12 +103,12 @@ property_int  (size, _("Internal Median Blur Radius"), 5)
   ui_meta     ("unit", "pixel-distance")
   description (_("Neighborhood radius, a negative value will calculate with inverted percentiles"))
 
-property_double  (percentile, _("Internal Median Blur Percentile"), -53)
+property_double  (percentile, _("Internal Median Blur Percentile"), 53)
   value_range (20, 80)
   description (_("Neighborhood color percentile"))
-    ui_meta     ("role", "output-extent")
 
-property_double  (alpha_percentile, _("Internal Median Blur Alpha percentile"), -68)
+
+property_double  (alphapercentile, _("Internal Median Blur Alpha percentile"), -68)
   value_range (-90, 100)
   description (_("Neighborhood alpha percentile"))
 
@@ -139,7 +139,7 @@ property_double (sharpen, _("Sharpen"), 0.2)
     ui_gamma    (3.0)
 
 
-property_file_path(src, _("Image file Overlay - Desaturate and ligthen for best results"), "")
+property_file_path(src, _("Image file Overlay - Desaturate and lighten for best results"), "")
     description (_("Source image file path (png, jpg, raw, svg, bmp, tif, ...)"))
 
 
@@ -210,6 +210,7 @@ update_graph (GeglOperation *operation)
   State *state = o->user_data;
   if (!state) return;
 
+
   GeglNode *usethis = state->hardlight; /* the default */
   switch (o->blendmode) {
     case GEGL_BLEND_MODE_TYPE_MULTIPLY: usethis = state->multiply; break;
@@ -222,6 +223,7 @@ update_graph (GeglOperation *operation)
     case GEGL_BLEND_MODE_TYPE_SOFTLIGHT: usethis = state->softlight; break;
     case GEGL_BLEND_MODE_TYPE_ADDITION: usethis = state->addition; break;
     case GEGL_BLEND_MODE_TYPE_EMBOSSBLEND: usethis = state->embossblend; break;
+default: usethis = state->hardlight;
 
   }
   gegl_node_link_many (state->input, state->median, state->box, state->gaussian, usethis, state->opacity, state->mcb, state->sharpen, state->desat, state->multiply2, state->nop, state->mcol, state->lightness, state->output,  NULL);
@@ -352,7 +354,7 @@ addition = gegl_node_new_child (gegl,
   gegl_operation_meta_redirect (operation, "elevation", emboss, "elevation");
   gegl_operation_meta_redirect (operation, "depth", emboss, "depth");
   gegl_operation_meta_redirect (operation, "percentile", median, "percentile");
-  gegl_operation_meta_redirect (operation, "alpha-percentile", median, "alpha-percentile");
+  gegl_operation_meta_redirect (operation, "alphapercentile", median, "alpha-percentile");
   gegl_operation_meta_redirect (operation, "src", imagefileoverlay, "src");
   gegl_operation_meta_redirect (operation, "lightness", lightness, "lightness");
   gegl_operation_meta_redirect (operation, "hue", lightness, "hue");
@@ -373,7 +375,7 @@ addition = gegl_node_new_child (gegl,
   gegl_node_connect_from (multiply2, "aux", imagefileoverlay, "output");
   gegl_node_link_many (nop, col,  NULL);
   gegl_node_link_many (gaussian, emboss,  NULL);
-  gegl_node_link_many (imagefileoverlay,  NULL);
+
 
   /* now save references to the gegl nodes so we can use them
    * later, when update_graph() is called
