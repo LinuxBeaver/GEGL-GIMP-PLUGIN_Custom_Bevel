@@ -75,8 +75,8 @@ property_enum (type, _("Choose Internal Median Shape"),
 
 property_double (opacity, _("Make wider (above 2 will harm dropshadow in a graph)"), 6)
     description (_("Global opacity value that is always used on top of the optional auxiliary input buffer."))
-    value_range (1.0, 6.0)
-    ui_range    (1.0, 6.0)
+    value_range (0.8, 6.0)
+    ui_range    (0.8, 6.0)
 
 
 
