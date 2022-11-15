@@ -97,7 +97,7 @@ property_int (depth, _("Depth (makes darker)"), 24)
 
 
 
-property_int  (size, _("Internal Median Blur Radius"), 5)
+property_int  (size, _("Internal Median Blur Radius"), 1)
   value_range (0, 15)
   ui_range    (0, 15)
   ui_meta     ("unit", "pixel-distance")
