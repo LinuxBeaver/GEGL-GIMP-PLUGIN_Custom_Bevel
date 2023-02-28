@@ -88,7 +88,7 @@ property_double (azimuth, _("Azimuth"), 67.0)
 
 property_double (elevation, _("Elevation"), 25.0)
     description (_("Elevation angle (degrees)"))
-    value_range (25, 90)
+    value_range (7, 90)
     ui_meta ("unit", "degree")
 
 property_int (depth, _("Depth (makes darker)"), 24)
