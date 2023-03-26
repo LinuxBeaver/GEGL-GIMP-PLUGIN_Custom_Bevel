@@ -118,7 +118,7 @@ property_double (gaus, _("Internal Gaussian Blur"), 1)
    description (_("Standard deviation for the XY axis"))
    value_range (0.0, 9.0)
 
-property_int (box, _("Internal Box Blur"), 8)
+property_int (box, _("Internal Box Blur"), 3)
    description(_("Radius of square pixel region, (width and height will be radius*2+1)"))
    value_range (0, 13)
    ui_range    (0, 13)
