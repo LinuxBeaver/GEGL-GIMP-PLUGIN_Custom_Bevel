@@ -9,7 +9,7 @@
 ## OS specific location to put GEGL Filter binaries 
 
 Windows
- C:\\Users\<YOUR NAME>\AppData\Local\gegl-0.4\plug-ins
+C:\Users\USERNAME\AppData\Local\gegl-0.4\plug-ins
  
  Linux 
  /home/(USERNAME)/.local/share/gegl-0.4/plug-ins
