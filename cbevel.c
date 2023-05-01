@@ -22,6 +22,15 @@
 
 #ifdef GEGL_PROPERTIES
 
+#define GEGLGRAPHSTRING \
+" id=forceopacity dst-in  aux=[ ref=forceopacity ] id=makeopacity over  aux=[ ref=makeopacity ] id=forceopacity dst-in  aux=[ ref=forceopacity ] id=makeopacity over  aux=[ ref=makeopacity ]  id=forceopacity dst-in  aux=[ ref=forceopacity ] id=makeopacity over  aux=[ ref=makeopacity ] id=forceopacity dst-in  aux=[ ref=forceopacity ] id=makeopacity over  aux=[ ref=makeopacity ]  "\
+
+
+
+property_string (stringopacity, _("HiddenGEGLGraphSyntax"), GEGLGRAPHSTRING)
+    ui_meta     ("role", "output-extent")
+
+
 enum_start (gegl_blend_mode_typecbevel)
   enum_value (GEGL_BLEND_MODE_TYPE_HARDLIGHT, "Hardlight",
               N_("HardLight"))
@@ -73,10 +82,11 @@ property_enum (type, _("Choose Internal Median Shape"),
 
 
 
-property_double (opacity, _("Make wider (above 2 will harm dropshadow in a graph)"), 6)
+property_double (opacity, _("Make wider (2 will harm dropshadow in a graph)"), 1)
     description (_("Global opacity value that is always used on top of the optional auxiliary input buffer."))
-    value_range (0.8, 6.0)
-    ui_range    (0.8, 6.0)
+    value_range (0.8, 2.0)
+    ui_range    (0.8, 2.0)
+
 
 
 
@@ -185,6 +195,7 @@ typedef struct
   GeglNode *plus;
   GeglNode *darken;
   GeglNode *lighten;
+  GeglNode *stringopacity;
   GeglNode *opacity;
   GeglNode *mcb;
   GeglNode *sharpen;
@@ -226,7 +237,7 @@ update_graph (GeglOperation *operation)
 default: usethis = state->hardlight;
 
   }
-  gegl_node_link_many (state->input, state->median, state->box, state->gaussian, usethis, state->opacity, state->mcb, state->sharpen, state->desat, state->multiply2, state->nop, state->mcol, state->lightness, state->output,  NULL);
+  gegl_node_link_many (state->input, state->median, state->box, state->gaussian, usethis, state->stringopacity, state->opacity, state->mcb, state->sharpen, state->desat, state->multiply2, state->nop, state->mcol, state->lightness, state->output,  NULL);
   gegl_node_connect_from (usethis, "aux", state->emboss, "output");
 
 }
@@ -235,7 +246,7 @@ static void attach (GeglOperation *operation)
 {
   GeglNode *gegl = operation->node;
 GeglProperties *o = GEGL_PROPERTIES (operation);
-  GeglNode *input, *output, *median, *multiply, *hardlight, *embossblend, *addition, *colordodge, *grainmerge, *softlight, *overlay, *darken, *desat, *multiply2, *lighten, *mcol, *col, *nop, *plus, *opacity, *gaussian, *emboss, *box, *lightness, *imagefileoverlay, *mcb, *sharpen;
+  GeglNode *input, *output, *median, *multiply, *hardlight, *embossblend, *addition, *colordodge, *grainmerge, *softlight, *overlay, *darken, *desat, *multiply2, *lighten, *mcol, *col, *nop, *plus, *stringopacity, *opacity, *gaussian, *emboss, *box, *lightness, *imagefileoverlay, *mcb, *sharpen;
 
   input    = gegl_node_get_input_proxy (gegl, "input");
   output   = gegl_node_get_output_proxy (gegl, "output");
@@ -244,6 +255,10 @@ GeglProperties *o = GEGL_PROPERTIES (operation);
 
   median    = gegl_node_new_child (gegl,
                                   "operation", "gegl:median-blur",
+                                  NULL);
+
+  stringopacity    = gegl_node_new_child (gegl,
+                                  "operation", "gegl:gegl",
                                   NULL);
 
   nop    = gegl_node_new_child (gegl,
@@ -347,7 +362,7 @@ addition = gegl_node_new_child (gegl,
 
 
  
- 
+  gegl_operation_meta_redirect (operation, "stringopacity",  stringopacity, "string");
   gegl_operation_meta_redirect (operation, "size", median, "radius");
   gegl_operation_meta_redirect (operation, "gaus", gaussian, "std-dev-x");
   gegl_operation_meta_redirect (operation, "gaus", gaussian, "std-dev-y");
@@ -370,7 +385,7 @@ addition = gegl_node_new_child (gegl,
 
 
 
-  gegl_node_link_many (input, median, box, gaussian, hardlight, opacity, mcb, sharpen, desat, multiply2, nop, mcol, lightness, output,  NULL);
+  gegl_node_link_many (input, median, box, gaussian, hardlight, opacity, stringopacity, mcb, sharpen, desat, multiply2, nop, mcol, lightness, output,  NULL);
   gegl_node_connect_from (hardlight, "aux", emboss, "output");
   gegl_node_connect_from (mcol, "aux", col, "output");
   gegl_node_connect_from (multiply2, "aux", imagefileoverlay, "output");
@@ -396,6 +411,7 @@ addition = gegl_node_new_child (gegl,
   state->darken = darken;
   state->lighten = lighten;
   state->opacity = opacity;
+  state->stringopacity = stringopacity;
   state->mcb = mcb;
   state->sharpen = sharpen;
   state->desat = desat;
