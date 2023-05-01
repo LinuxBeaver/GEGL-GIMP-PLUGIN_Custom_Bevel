@@ -23,7 +23,7 @@
 #ifdef GEGL_PROPERTIES
 
 #define GEGLGRAPHSTRING \
-" id=forceopacity dst-in  aux=[ ref=forceopacity ] id=makeopacity over  aux=[ ref=makeopacity ] id=forceopacity dst-in  aux=[ ref=forceopacity ] id=makeopacity over  aux=[ ref=makeopacity ]  id=forceopacity dst-in  aux=[ ref=forceopacity ] id=makeopacity over  aux=[ ref=makeopacity ] id=forceopacity dst-in  aux=[ ref=forceopacity ] id=makeopacity over  aux=[ ref=makeopacity ]  "\
+" id=forceopacity over  aux=[ ref=forceopacity ] id=makeopacity over  aux=[ ref=makeopacity ] id=forceopacity over  aux=[ ref=forceopacity ] id=makeopacity over  aux=[ ref=makeopacity ]  id=forceopacity over  aux=[ ref=forceopacity ] id=makeopacity over  aux=[ ref=makeopacity ] id=forceopacity over  aux=[ ref=forceopacity ]   "\
 
 
 
@@ -82,9 +82,9 @@ property_enum (type, _("Choose Internal Median Shape"),
 
 
 
-property_double (opacity, _("Make wider (2 will harm dropshadow in a graph)"), 1)
+property_double (opacity, _("Make wider (2+ will harm dropshadow in a graph)"), 1)
     description (_("Global opacity value that is always used on top of the optional auxiliary input buffer."))
-    value_range (0.8, 2.0)
+    value_range (0.8, 5.0)
     ui_range    (0.8, 2.0)
 
 
