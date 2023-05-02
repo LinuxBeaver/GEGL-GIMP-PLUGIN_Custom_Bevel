@@ -86,7 +86,7 @@ property_double (opacity, _("Make wider (2+ will harm dropshadow in a graph)"), 
     ui_range    (0.8, 5.0)
 
 
-property_boolean (restorepuff, _("Enable or Disable Edge Puff"), FALSE)
+property_boolean (restorepuff, _("Enable or Disable Edge Puff"), TRUE)
   description    (_("In GEGL Pango Markup this option when disabled solves a clipping bug"))
 
 
