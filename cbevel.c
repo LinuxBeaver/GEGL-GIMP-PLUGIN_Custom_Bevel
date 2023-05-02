@@ -23,9 +23,7 @@
 #ifdef GEGL_PROPERTIES
 
 #define GEGLGRAPHSTRING \
-" id=forceopacity over  aux=[ ref=forceopacity ] id=makeopacity over  aux=[ ref=makeopacity ] id=forceopacity over  aux=[ ref=forceopacity ] id=makeopacity over  aux=[ ref=makeopacity ]  id=forceopacity over  aux=[ ref=forceopacity ] id=makeopacity over  aux=[ ref=makeopacity ] id=forceopacity over  aux=[ ref=forceopacity ]   "\
-
-
+" id=forceopacity over  aux=[ ref=forceopacity ] id=makeopacity over  aux=[ ref=makeopacity ] id=forceopacity over  aux=[ ref=forceopacity ] id=makeopacity over  aux=[ ref=makeopacity ]  id=forceopacity over  aux=[ ref=forceopacity ] id=makeopacity over  aux=[ ref=makeopacity ] id=forceopacity over  aux=[ ref=forceopacity ]  id=makeopacity over  aux=[ ref=makeopacity ] id=forceopacity over  aux=[ ref=forceopacity ]  id=makeopacity over  aux=[ ref=makeopacity ] id=forceopacity over  aux=[ ref=forceopacity ]  "\
 
 property_string (stringopacity, _("HiddenGEGLGraphSyntax"), GEGLGRAPHSTRING)
     ui_meta     ("role", "output-extent")
@@ -82,10 +80,14 @@ property_enum (type, _("Choose Internal Median Shape"),
 
 
 
-property_double (opacity, _("Make wider (2+ will harm dropshadow in a graph)"), 1)
+property_double (opacity, _("Make wider (2+ will harm dropshadow in a graph)"), 3)
     description (_("Global opacity value that is always used on top of the optional auxiliary input buffer."))
     value_range (0.8, 5.0)
-    ui_range    (0.8, 2.0)
+    ui_range    (0.8, 5.0)
+
+
+property_boolean (restorepuff, _("Enable or Disable Edge Puff"), FALSE)
+  description    (_("In GEGL Pango Markup this option when disabled solves a clipping bug"))
 
 
 
@@ -236,8 +238,16 @@ update_graph (GeglOperation *operation)
     case GEGL_BLEND_MODE_TYPE_EMBOSSBLEND: usethis = state->embossblend; break;
 default: usethis = state->hardlight;
 
+}
+
+  if (o->restorepuff)
+  {
+  gegl_node_link_many (state->input, state->median, state->box, state->gaussian, usethis, state->opacity, state->mcb, state->sharpen, state->desat, state->multiply2, state->nop, state->mcol, state->lightness, state->output,  NULL);
+  gegl_node_connect_from (usethis, "aux", state->emboss, "output");
   }
-  gegl_node_link_many (state->input, state->median, state->box, state->gaussian, usethis, state->stringopacity, state->opacity, state->mcb, state->sharpen, state->desat, state->multiply2, state->nop, state->mcol, state->lightness, state->output,  NULL);
+else
+
+  gegl_node_link_many (state->input, state->median, state->box, state->gaussian, usethis, state->stringopacity, state->mcb, state->sharpen, state->desat, state->multiply2, state->nop, state->mcol, state->lightness, state->output,  NULL);
   gegl_node_connect_from (usethis, "aux", state->emboss, "output");
 
 }
@@ -385,7 +395,7 @@ addition = gegl_node_new_child (gegl,
 
 
 
-  gegl_node_link_many (input, median, box, gaussian, hardlight, opacity, stringopacity, mcb, sharpen, desat, multiply2, nop, mcol, lightness, output,  NULL);
+  gegl_node_link_many (input, median, box, gaussian, hardlight, opacity, mcb, sharpen, desat, multiply2, nop, mcol, lightness, output,  NULL);
   gegl_node_connect_from (hardlight, "aux", emboss, "output");
   gegl_node_connect_from (mcol, "aux", col, "output");
   gegl_node_connect_from (multiply2, "aux", imagefileoverlay, "output");
