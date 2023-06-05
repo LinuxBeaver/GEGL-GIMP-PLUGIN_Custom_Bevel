@@ -22,6 +22,21 @@
 
 #ifdef GEGL_PROPERTIES
 
+
+property_enum(guichange, _("Part of filter to be displayed"),
+    guiendcustombevellist, guichangeenumcustombevellist,
+    CUSTOMBEVEL_SHOW_DEFAULT)
+  description(_("Change the GUI option"))
+
+
+enum_start (guichangeenumcustombevellist)
+enum_value   (CUSTOMBEVEL_SHOW_DEFAULT, "defaultcustombevel", N_("Basic Sliders"))
+enum_value   (CUSTOMBEVEL_SHOW_ADVANCE, "advancecustombevel", N_("Advance Sliders for technical users"))
+  enum_end (guiendcustombevellist)
+
+
+
+
 #define GEGLGRAPHSTRING \
 " id=forceopacity over  aux=[ ref=forceopacity ] id=makeopacity over  aux=[ ref=makeopacity ] id=forceopacity over  aux=[ ref=forceopacity ] id=makeopacity over  aux=[ ref=makeopacity ]  id=forceopacity over  aux=[ ref=forceopacity ] id=makeopacity over  aux=[ ref=makeopacity ] id=forceopacity over  aux=[ ref=forceopacity ]  id=makeopacity over  aux=[ ref=makeopacity ] id=forceopacity over  aux=[ ref=forceopacity ]  id=makeopacity over  aux=[ ref=makeopacity ] id=forceopacity over  aux=[ ref=forceopacity ]  "\
 
@@ -76,19 +91,20 @@ property_enum (type, _("Choose Internal Median Shape"),
                GeglMedianBlurNeighborhoodcb, gegl_median_blur_neighborhoodcb,
                GEGL_MEDIAN_BLUR_NEIGHBORHOOD_CIRCLEcb)
   description (_("Neighborhood type"))
+ui_meta ("visible", "guichange {advancecustombevel}")
 
 
 
 
 property_double (opacity, _("Make wider (2+ will harm dropshadow in a graph)"), 3)
-    description (_("Global opacity value that is always used on top of the optional auxiliary input buffer."))
+    description (_("Makes Bevel more opaque. Anything above 2+ will cause a known bug in GEGL Graph"))
     value_range (0.8, 5.0)
     ui_range    (0.8, 5.0)
+ui_meta ("visible", "guichange {advancecustombevel}")
 
-
-property_boolean (restorepuff, _("Enable or Disable Edge Puff"), TRUE)
-  description    (_("In GEGL Pango Markup this option when disabled solves a clipping bug"))
-
+property_boolean (restorepuff, _("Edge Puff Enabled (only disable for GEGL Graphs)"), TRUE)
+  description    (_("This is only useful to disable when custom bevel chains with drop shadow or pango markup stuff. Non technical users should leave this alone."))
+ui_meta ("visible", "guichange {advancecustombevel}")
 
 
 
@@ -98,7 +114,7 @@ property_double (azimuth, _("Azimuth"), 67.0)
     ui_meta ("unit", "degree")
     ui_meta ("direction", "ccw")
 
-property_double (elevation, _("Elevation"), 25.0)
+property_double (elevation, _("Elevation (make 0 if puff checkbox is disabled)"), 25.0)
     description (_("Elevation angle (degrees)"))
     value_range (7, 90)
     ui_meta ("unit", "degree")
@@ -118,6 +134,8 @@ property_int  (size, _("Internal Median Blur Radius"), 1)
 property_double  (percentile, _("Internal Median Blur Percentile"), 53)
   value_range (20, 80)
   description (_("Neighborhood color percentile"))
+ui_meta ("visible", "guichange {advancecustombevel}")
+
 
 
 property_double  (alphapercentile, _("Internal Median Blur Alpha percentile"), -68)
@@ -126,29 +144,31 @@ property_double  (alphapercentile, _("Internal Median Blur Alpha percentile"), -
 
 
 
-property_double (gaus, _("Internal Gaussian Blur"), 1)
-   description (_("Standard deviation for the XY axis"))
+property_double (gaus, _("Internal Gaussian Blur for a normal bevel"), 1)
+   description (_("Makes a normal bevel"))
    value_range (0.0, 9.0)
 
-property_int (box, _("Internal Box Blur"), 3)
-   description(_("Radius of square pixel region, (width and height will be radius*2+1)"))
-   value_range (0, 13)
-   ui_range    (0, 13)
+property_int (box, _("Internal Box Blur for a sharp bevel"), 3)
+   description(_("Makes a sharp bevel"))
+   value_range (0, 10)
+   ui_range    (0, 10)
    ui_gamma   (1.5)
 
 
 
 
 property_int  (mcb, _("Smooth bevel"), 1)
-  description (_("Controls the number of iterations"))
+    description(_("Applies a mean curvature on the bevel"))
   value_range (0, 6)
   ui_range    (0, 6)
+ui_meta ("visible", "guichange {advancecustombevel}")
 
 property_double (sharpen, _("Sharpen"), 0.2)
-    description(_("Scaling factor for unsharp-mask, the strength of effect"))
+    description(_("Applies a faint sharpen on the bevel"))
     value_range (0.0, 4.5)
     ui_range    (0.0, 4.5)
     ui_gamma    (3.0)
+ui_meta ("visible", "guichange {advancecustombevel}")
 
 
 property_file_path(src, _("Image file Overlay - Desaturate and lighten for best results"), "")
@@ -170,6 +190,7 @@ property_double (lightness, _("Lightness that can help image file and color over
 property_double (hue, _("Hue Rotation"),  0.0)
    description  (_("Hue adjustment"))
    value_range  (-180.0, 180.0)
+ui_meta ("visible", "guichange {advancecustombevel}")
 
 property_color (coloroverlay, _("Forced Color Overlay (works best when bevel is white)"), "#ffffff")
     description (_("The color to paint over the input"))
