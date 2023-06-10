@@ -96,15 +96,16 @@ ui_meta ("visible", "guichange {advancecustombevel}")
 
 
 
-property_double (opacity, _("Make wider (2+ will harm dropshadow in a graph)"), 3)
-    description (_("Makes Bevel more opaque. Anything above 2+ will cause a known bug in GEGL Graph"))
-    value_range (0.8, 5.0)
-    ui_range    (0.8, 5.0)
+property_double (opacity, _("Make bevel wider"), 3.5)
+    description (_("Makes Bevel more opaque with gegl opacity"))
+    value_range (0.8, 6.0)
+    ui_range    (0.8, 6.0)
 ui_meta ("visible", "guichange {advancecustombevel}")
 
 property_boolean (restorepuff, _("Edge Puff Enabled (only disable for GEGL Graphs)"), TRUE)
   description    (_("This is only useful to disable when custom bevel chains with drop shadow or pango markup stuff. Non technical users should leave this alone."))
 ui_meta ("visible", "guichange {advancecustombevel}")
+
 
 
 
@@ -234,6 +235,7 @@ typedef struct
   GeglNode *softlight;
   GeglNode *addition;
   GeglNode *embossblend;
+  GeglNode *repairgeglgraph;
   GeglNode *output;
 }State;
 
@@ -263,7 +265,7 @@ default: usethis = state->hardlight;
 
   if (o->restorepuff)
   {
-  gegl_node_link_many (state->input, state->median, state->box, state->gaussian, usethis, state->opacity, state->mcb, state->sharpen, state->desat, state->multiply2, state->nop, state->mcol, state->lightness, state->output,  NULL);
+  gegl_node_link_many (state->input, state->median, state->box, state->gaussian, usethis, state->opacity, state->mcb, state->sharpen, state->desat, state->multiply2, state->nop, state->mcol, state->lightness, state->repairgeglgraph, state->output,  NULL);
   gegl_node_connect_from (usethis, "aux", state->emboss, "output");
   }
 else
@@ -277,7 +279,7 @@ static void attach (GeglOperation *operation)
 {
   GeglNode *gegl = operation->node;
 GeglProperties *o = GEGL_PROPERTIES (operation);
-  GeglNode *input, *output, *median, *multiply, *hardlight, *embossblend, *addition, *colordodge, *grainmerge, *softlight, *overlay, *darken, *desat, *multiply2, *lighten, *mcol, *col, *nop, *plus, *stringopacity, *opacity, *gaussian, *emboss, *box, *lightness, *imagefileoverlay, *mcb, *sharpen;
+  GeglNode *input, *output, *median, *multiply, *hardlight, *embossblend, *addition, *colordodge, *grainmerge, *softlight, *overlay, *darken, *desat, *multiply2, *lighten, *mcol, *col, *nop, *plus, *stringopacity, *opacity, *gaussian, *emboss, *box, *lightness, *imagefileoverlay, *mcb, *sharpen, *repairgeglgraph;
 
   input    = gegl_node_get_input_proxy (gegl, "input");
   output   = gegl_node_get_output_proxy (gegl, "output");
@@ -387,8 +389,23 @@ addition = gegl_node_new_child (gegl,
                                   "operation", "gimp:layer-mode", "layer-mode", 33, "composite-mode", 1, NULL); 
 
   embossblend   = gegl_node_new_child (gegl,
-                                  "operation", "gegl:emboss", 
+                                  "operation", "gegl:over", 
                                   NULL);
+
+
+  repairgeglgraph      = gegl_node_new_child (gegl, "operation", "gegl:median-blur",
+                                         "radius",       0,
+                                         NULL);
+
+ /*Repair GEGL Graph is a critical operation for Gimp's non-destructive future.
+A median blur at zero radius is confirmed to make no changes to an image. 
+This option resets gegl:opacity's value to prevent a known bug where
+plugins like clay, glossy balloon and custom bevel glitch out when
+drop shadow is applied in a gegl graph below them.*/
+ 
+ 
+ 
+
 
 
 
@@ -416,7 +433,7 @@ addition = gegl_node_new_child (gegl,
 
 
 
-  gegl_node_link_many (input, median, box, gaussian, hardlight, opacity, mcb, sharpen, desat, multiply2, nop, mcol, lightness, output,  NULL);
+  gegl_node_link_many (input, median, box, gaussian, hardlight, opacity, mcb, sharpen, desat, multiply2, nop, mcol, lightness, repairgeglgraph, output,  NULL);
   gegl_node_connect_from (hardlight, "aux", emboss, "output");
   gegl_node_connect_from (mcol, "aux", col, "output");
   gegl_node_connect_from (multiply2, "aux", imagefileoverlay, "output");
@@ -454,6 +471,7 @@ addition = gegl_node_new_child (gegl,
   state->grainmerge = grainmerge;
   state->overlay = overlay;
   state->softlight = softlight;
+  state->repairgeglgraph = repairgeglgraph;
   state->output = output;
 
   o->user_data = state;
