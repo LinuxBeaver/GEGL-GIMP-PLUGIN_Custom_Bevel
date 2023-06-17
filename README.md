@@ -1,4 +1,4 @@
-
+Thanks to your care and support - A branch of Custom Bevel is officially accepted in Gimp 2.99. 
 ![image preview](custombevelpreview.png )
 
 
