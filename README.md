@@ -1,6 +1,7 @@
+## Custom Bevel - A Gimp Plugin to make any bevel/bump effect that your heart desires.
+BECAUSE OF YOUR CARE AND SUPPORT A BRANCH OF CUSTOM BEVEL WAS ACCEPTED IN GIMP 2.99 officially.  It will be named "Chamfer" and will have a different GUI and lack Gimp only blend modes. This plugin build is seperate from the version that will be in Gimp and can co-exist with Gimp's version.
 
 ![image preview](custombevelpreview.png )
-
 
 
 ![image preview](customB_images/1.png )
@@ -58,6 +59,12 @@ Then build the same way you would on Linux:
 meson setup --buildtype=release build
 ninja -C build
 ```
+
+## More image previews to show off how based this plugin is. 
+
+![image](https://github.com/LinuxBeaver/GEGL-Custom-Bevel/assets/78667207/2134ef33-a523-4e3d-9b31-a3cb75b51c3e)
+
+![image](https://github.com/LinuxBeaver/GEGL-Custom-Bevel/assets/78667207/6064a396-9bc2-4919-b444-dc7a8d3be383)
 
 
 
