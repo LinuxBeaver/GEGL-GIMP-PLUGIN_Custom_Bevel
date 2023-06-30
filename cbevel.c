@@ -1,4 +1,4 @@
-/* This file is an image processing operation for GEGL
+/*This file is an image processing operation for GEGL
  *
  * GEGL is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
@@ -22,6 +22,21 @@
 
 #ifdef GEGL_PROPERTIES
 
+/*
+Custom Bevel's graph recreation. You can change hardlight to other blend modes. This may not be 100% accurate.
+If you feed this to Gimp's GEGL Graph filter you can get a static preview of CB. 
+
+color-overlay value=#00eb26
+gaussian-blur std-dev-x=4 std-dev-y=4
+id=1
+#overlay softlight #hardlight #grain-merge #screen #andmoreIfogot
+gimp:layer-mode layer-mode=hardlight aux=[ ref=1 emboss ]
+opacity value=6
+median-blur radius=0
+ */
+
+
+
 
 property_enum(guichange, _("Part of filter to be displayed"),
     guiendcustombevellist, guichangeenumcustombevellist,
@@ -35,14 +50,8 @@ enum_value   (CUSTOMBEVEL_SHOW_ADVANCE, "advancecustombevel", N_("Advance Slider
   enum_end (guiendcustombevellist)
 
 
-
-
 #define GEGLGRAPHSTRING \
 " id=forceopacity over  aux=[ ref=forceopacity ] id=makeopacity over  aux=[ ref=makeopacity ] id=forceopacity over  aux=[ ref=forceopacity ] id=makeopacity over  aux=[ ref=makeopacity ]  id=forceopacity over  aux=[ ref=forceopacity ] id=makeopacity over  aux=[ ref=makeopacity ] id=forceopacity over  aux=[ ref=forceopacity ]  id=makeopacity over  aux=[ ref=makeopacity ] id=forceopacity over  aux=[ ref=forceopacity ]  id=makeopacity over  aux=[ ref=makeopacity ] id=forceopacity over  aux=[ ref=forceopacity ]  "\
-
-property_string (stringopacity, _("HiddenGEGLGraphSyntax"), GEGLGRAPHSTRING)
-    ui_meta     ("role", "output-extent")
-
 
 enum_start (gegl_blend_mode_typecbevel)
   enum_value (GEGL_BLEND_MODE_TYPE_HARDLIGHT, "Hardlight",
@@ -73,18 +82,11 @@ property_enum (blendmode, _("Blend Mode of Internal Emboss"),
     GeglBlendModeTypecbevel, gegl_blend_mode_typecbevel,
     GEGL_BLEND_MODE_TYPE_HARDLIGHT)
 
-
-
-
 enum_start (gegl_median_blur_neighborhoodcb)
   enum_value (GEGL_MEDIAN_BLUR_NEIGHBORHOOD_SQUAREcb,  "squarecb",  N_("Square"))
   enum_value (GEGL_MEDIAN_BLUR_NEIGHBORHOOD_CIRCLEcb,  "circlecb",  N_("Circle"))
   enum_value (GEGL_MEDIAN_BLUR_NEIGHBORHOOD_DIAMONDcb, "diamondcb", N_("Diamond"))
 enum_end (GeglMedianBlurNeighborhoodcb)
-
-
-
-
 
 
 property_enum (type, _("Choose Internal Median Shape"),
@@ -93,21 +95,16 @@ property_enum (type, _("Choose Internal Median Shape"),
   description (_("Neighborhood type"))
 ui_meta ("visible", "guichange {advancecustombevel}")
 
-
-
-
 property_double (opacity, _("Make bevel wider"), 3.5)
     description (_("Makes Bevel more opaque with gegl opacity"))
     value_range (0.8, 6.0)
     ui_range    (0.8, 6.0)
 ui_meta ("visible", "guichange {advancecustombevel}")
+  ui_meta     ("sensitive", " restorepuff")
 
-property_boolean (restorepuff, _("Edge Puff Enabled (only disable for GEGL Graphs)"), TRUE)
-  description    (_("This is only useful to disable when custom bevel chains with drop shadow or pango markup stuff. Non technical users should leave this alone."))
+property_boolean (restorepuff, _("Edge Puff Enabled"), TRUE)
+  description    (_("This removes all opacity around the edges. It was intended for pango markup testing. Non technical users should leave this alone. Infact it may be entirely useless now that median-blur radius is established as an alternative to it. The only reason this is still here is because I noticed it does a few interesting things; if you want to use it set azimuth to its lowest settings."))
 ui_meta ("visible", "guichange {advancecustombevel}")
-
-
-
 
 property_double (azimuth, _("Azimuth"), 67.0)
     description (_("Light angle (degrees)"))
@@ -115,16 +112,14 @@ property_double (azimuth, _("Azimuth"), 67.0)
     ui_meta ("unit", "degree")
     ui_meta ("direction", "ccw")
 
-property_double (elevation, _("Elevation (make 0 if puff checkbox is disabled)"), 25.0)
+property_double (elevation, _("Elevation (make low if puff checkbox is disabled)"), 25.0)
     description (_("Elevation angle (degrees)"))
     value_range (7, 90)
     ui_meta ("unit", "degree")
 
-property_int (depth, _("Depth (makes darker)"), 24)
-    description (_("Filter width"))
+property_int (depth, _("Depth and or detail"), 24)
+    description (_("Brings out depth and or detail of the bevel depending on the blend mode"))
     value_range (1, 100)
-
-
 
 property_int  (size, _("Internal Median Blur Radius"), 1)
   value_range (0, 15)
@@ -189,7 +184,7 @@ property_double (lightness, _("Lightness that can help image file and color over
    value_range  (-12, 26.0)
 
 property_double (hue, _("Hue Rotation"),  0.0)
-   description  (_("Hue adjustment"))
+   description  (_("Hue adjustment - This will shift every color in the bevel and is useless if you want to maintain a shine associated with a certain color"))
    value_range  (-180.0, 180.0)
 ui_meta ("visible", "guichange {advancecustombevel}")
 
@@ -226,6 +221,7 @@ typedef struct
   GeglNode *desat;
   GeglNode *multiply2;
   GeglNode *nop;
+  GeglNode *nop2;
   GeglNode *mcol;
   GeglNode *col;
   GeglNode *imagefileoverlay;
@@ -266,20 +262,36 @@ default: usethis = state->hardlight;
   if (o->restorepuff)
   {
   gegl_node_link_many (state->input, state->median, state->box, state->gaussian, usethis, state->opacity, state->mcb, state->sharpen, state->desat, state->multiply2, state->nop, state->mcol, state->lightness, state->repairgeglgraph, state->output,  NULL);
+/* Blend emboss with one of many blend modes*/
   gegl_node_connect_from (usethis, "aux", state->emboss, "output");
+  gegl_node_link_many (state->gaussian, state->emboss,  NULL);
+/* Blend color overlay with multiply*/
+  gegl_node_connect_from (state->mcol, "aux", state->col, "output");
+  gegl_node_link_many (state->nop, state->col,  NULL);
+/* Blend multiply with image file overlay*/
+  gegl_node_connect_from (state->multiply2, "aux", state->imagefileoverlay, "output");
   }
 else
 
-  gegl_node_link_many (state->input, state->median, state->box, state->gaussian, usethis, state->stringopacity, state->mcb, state->sharpen, state->desat, state->multiply2, state->nop, state->mcol, state->lightness, state->output,  NULL);
+  gegl_node_link_many (state->input, state->median, state->box, state->gaussian, usethis, state->stringopacity, state->mcb, state->sharpen, state->desat, state->multiply2, state->nop, state->mcol, state->lightness, state->repairgeglgraph, state->output,  NULL);
+/* Blend emboss with one of many blend modes*/
   gegl_node_connect_from (usethis, "aux", state->emboss, "output");
-
+  gegl_node_link_many (state->gaussian, state->emboss,  NULL);
+/* Blend color overlay with multiply*/
+  gegl_node_connect_from (state->mcol, "aux", state->col, "output");
+  gegl_node_link_many (state->nop, state->col,  NULL);
+/* Blend multiply with image file overlay*/
+  gegl_node_connect_from (state->multiply2, "aux", state->imagefileoverlay, "output");
 }
+
+
+
 
 static void attach (GeglOperation *operation)
 {
   GeglNode *gegl = operation->node;
 GeglProperties *o = GEGL_PROPERTIES (operation);
-  GeglNode *input, *output, *median, *multiply, *hardlight, *embossblend, *addition, *colordodge, *grainmerge, *softlight, *overlay, *darken, *desat, *multiply2, *lighten, *mcol, *col, *nop, *plus, *stringopacity, *opacity, *gaussian, *emboss, *box, *lightness, *imagefileoverlay, *mcb, *sharpen, *repairgeglgraph;
+  GeglNode *input, *output, *median, *multiply, *hardlight,  *embossblend, *addition, *colordodge, *grainmerge, *nop2, *softlight, *overlay, *darken, *desat, *multiply2, *lighten, *mcol, *col, *nop, *plus, *stringopacity, *opacity, *gaussian, *emboss, *box, *lightness, *imagefileoverlay, *mcb, *sharpen, *repairgeglgraph;
 
   input    = gegl_node_get_input_proxy (gegl, "input");
   output   = gegl_node_get_output_proxy (gegl, "output");
@@ -291,10 +303,14 @@ GeglProperties *o = GEGL_PROPERTIES (operation);
                                   NULL);
 
   stringopacity    = gegl_node_new_child (gegl,
-                                  "operation", "gegl:gegl",
+                                  "operation", "gegl:gegl", "string", GEGLGRAPHSTRING,
                                   NULL);
 
   nop    = gegl_node_new_child (gegl,
+                                  "operation", "gegl:nop",
+                                  NULL);
+
+  nop2    = gegl_node_new_child (gegl,
                                   "operation", "gegl:nop",
                                   NULL);
 
@@ -363,6 +379,7 @@ GeglProperties *o = GEGL_PROPERTIES (operation);
                                   "operation", "gegl:hue-chroma",
                                   NULL);
 
+
   mcb    = gegl_node_new_child (gegl,
                                   "operation", "gegl:mean-curvature-blur",
                                   NULL);
@@ -389,7 +406,7 @@ addition = gegl_node_new_child (gegl,
                                   "operation", "gimp:layer-mode", "layer-mode", 33, "composite-mode", 1, NULL); 
 
   embossblend   = gegl_node_new_child (gegl,
-                                  "operation", "gegl:over", 
+                                  "operation", "gegl:src", 
                                   NULL);
 
 
@@ -404,14 +421,7 @@ plugins like clay, glossy balloon and custom bevel glitch out when
 drop shadow is applied in a gegl graph below them.*/
  
  
- 
-
-
-
-
- 
-  gegl_operation_meta_redirect (operation, "stringopacity",  stringopacity, "string");
-  gegl_operation_meta_redirect (operation, "size", median, "radius");
+   gegl_operation_meta_redirect (operation, "size", median, "radius");
   gegl_operation_meta_redirect (operation, "gaus", gaussian, "std-dev-x");
   gegl_operation_meta_redirect (operation, "gaus", gaussian, "std-dev-y");
   gegl_operation_meta_redirect (operation, "azimuth", emboss, "azimuth");
@@ -433,12 +443,6 @@ drop shadow is applied in a gegl graph below them.*/
 
 
 
-  gegl_node_link_many (input, median, box, gaussian, hardlight, opacity, mcb, sharpen, desat, multiply2, nop, mcol, lightness, repairgeglgraph, output,  NULL);
-  gegl_node_connect_from (hardlight, "aux", emboss, "output");
-  gegl_node_connect_from (mcol, "aux", col, "output");
-  gegl_node_connect_from (multiply2, "aux", imagefileoverlay, "output");
-  gegl_node_link_many (nop, col,  NULL);
-  gegl_node_link_many (gaussian, emboss,  NULL);
 
 
   /* now save references to the gegl nodes so we can use them
@@ -465,7 +469,9 @@ drop shadow is applied in a gegl graph below them.*/
   state->desat = desat;
   state->multiply2 = multiply2;
   state->nop = nop;
+  state->nop2 = nop2;
   state->mcol = mcol;
+  state->col = col;
   state->imagefileoverlay = imagefileoverlay;
   state->lightness = lightness;
   state->grainmerge = grainmerge;
