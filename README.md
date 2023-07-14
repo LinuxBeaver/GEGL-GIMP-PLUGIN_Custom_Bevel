@@ -66,5 +66,17 @@ ninja -C build
 
 ![image](https://github.com/LinuxBeaver/GEGL-Custom-Bevel/assets/78667207/6064a396-9bc2-4919-b444-dc7a8d3be383)
 
+July 2023 update makes new styles possible.
+
+![image](https://github.com/LinuxBeaver/GEGL-Custom-Bevel/assets/78667207/590687bd-9126-48c4-a9bb-62c3d21fbcc9)
+
+![image](https://github.com/LinuxBeaver/GEGL-Custom-Bevel/assets/78667207/7785a44a-19bb-4aaf-a268-06a5f40ab4cf)
+
+![image](https://github.com/LinuxBeaver/GEGL-Custom-Bevel/assets/78667207/a80b0e6f-d4ec-4b63-9800-1ea4cfeeea72)
 
 
+Renders Custom Bevel Generated.
+![image](https://github.com/LinuxBeaver/GEGL-Custom-Bevel/assets/78667207/14f0a74a-3eb3-467c-af31-8264a5df66e6)
+
+
+Enjoy Custom Bevel. 
