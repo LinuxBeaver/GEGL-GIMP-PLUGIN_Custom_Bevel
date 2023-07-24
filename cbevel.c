@@ -500,6 +500,8 @@ GeglOperationMetaClass *operation_meta_class = GEGL_OPERATION_META_CLASS (klass)
     "reference-hash", "h3do6akv00vyeefjf25sb2ac",
     "description", _("GEGL makes a bevel with high customization allowing choice of bevel size, internal blend modes and internal blur types. Different blend modes do different things regarding detail, depth or presence of a shine effect. Options exist to make the bevel sharp, thick, or tubular."
                      ""),
+    "gimp:menu-path", "<Image>/Filters/Text Styling",
+    "gimp:menu-label", _("Custom Bevel..."),
     NULL);
 }
 
