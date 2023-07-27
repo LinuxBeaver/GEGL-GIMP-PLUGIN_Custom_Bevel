@@ -398,7 +398,7 @@ grainmerge = gegl_node_new_child (gegl,
  /*As of now (july 2023) Gimp's Overlay blend mode is 23, if Gimp ever gets new blend modes this will break and it will either be 22-24 or some other number. Future GEGL maintainers
 need to know this.*/
 overlay = gegl_node_new_child (gegl,
-                              "operation", "gimp:layer-mode", "layer-mode", 23, "composite-mode", 3, NULL);
+                              "operation", "gimp:layer-mode", "layer-mode", 23, "composite-mode", 1, NULL);
 
  /*As of now (july 2023) Gimp's Softlight blend mode is 45, if Gimp ever gets new blend modes this will break and it will either be 44-46 or some other number. Future GEGL maintainers
 need to know this.*/
