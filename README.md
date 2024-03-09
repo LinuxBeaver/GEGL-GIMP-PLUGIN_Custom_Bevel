@@ -1,5 +1,4 @@
 ## Custom Bevel - A Gimp Plugin to make any bevel/bump effect that you want.
-BECAUSE OF YOUR CARE AND SUPPORT A BRANCH OF CUSTOM BEVEL WAS ACCEPTED IN GIMP 2.99 OFFICIALLY.  It is named "Chamfer" and can co-exist with this plugin. It is different then the plugin though as it seems to be a fusion of this plugin and my sharp bevel.
 
 ![image preview](custombevelpreview.png )
 
