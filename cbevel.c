@@ -54,7 +54,7 @@ enum_value   (CUSTOMBEVEL_SHOW_ADVANCE, "advancecustombevel", N_("Advance Slider
 
 
 #define GEGLGRAPHSTRING2 \
-"  id=0 dst-out aux=[ ref=0  component-extract component=alpha   levels in-low=0.15  color-to-alpha opacity-threshold=0.6 ] median-blur radius=0    "\
+"  id=0 dst-out aux=[ ref=0  component-extract component=alpha   levels in-low=0.15  color-to-alpha opacity-threshold=0.6 ] median-blur radius=0 abyss-policy=none    "\
 
 
 enum_start (gegl_blend_mode_typecbevel)
@@ -352,12 +352,12 @@ GeglProperties *o = GEGL_PROPERTIES (operation);
 
 
   medianbookmark    = gegl_node_new_child (gegl,
-                                  "operation", "gegl:median-blur", "radius", 30, "alpha-percentile", 100.0,
+                                  "operation", "gegl:median-blur", "radius", 30, "alpha-percentile", 100.0,     "abyss-policy",     GEGL_ABYSS_NONE,
                                   NULL);
 
 
   median    = gegl_node_new_child (gegl,
-                                  "operation", "gegl:median-blur",
+                                  "operation", "gegl:median-blur",     "abyss-policy",     GEGL_ABYSS_NONE,
                                   NULL);
 
  /*This is a GEGL Graph string to kill transparency on edges*/
@@ -386,7 +386,7 @@ GeglProperties *o = GEGL_PROPERTIES (operation);
  /*filter=1 is codename of gaussian-blur filter=fir. There is no other way of calling Gaussian Blur's fir mode TMK. FIR mode displays less edge puff.*/
 
   gaussian    = gegl_node_new_child (gegl,
-                                  "operation", "gegl:gaussian-blur",
+                                  "operation", "gegl:gaussian-blur",  "clip-extent", FALSE, "abyss-policy", 0,
    "filter", 1,
                                   NULL);
 
@@ -499,7 +499,7 @@ A median blur at zero radius is confirmed to make no changes to an image.
 This option resets gegl:opacity's value to prevent a known bug where
 plugins like clay, glossy balloon and custom bevel glitch out when
 drop shadow is applied in a gegl graph below them.*/
-   repairgeglgraph      = gegl_node_new_child (gegl, "operation", "gegl:median-blur",
+   repairgeglgraph      = gegl_node_new_child (gegl, "operation", "gegl:median-blur",     "abyss-policy",     GEGL_ABYSS_NONE,
                                          "radius",       0,
                                          NULL);
 
