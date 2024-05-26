@@ -14,7 +14,7 @@
  * License along with GEGL; if not, see <https://www.gnu.org/licenses/>.
  *
  * Copyright 2006 Øyvind Kolås <pippin@gimp.org>
- * 2022 Beaver (GEGL custom bevel) 
+ * 2022 Beaver (GEGL custom bevel)
  */
 
 #include "config.h"
@@ -24,7 +24,7 @@
 
 /*
 Custom Bevel's graph recreation. You can change hardlight to other blend modes. This may not be 100% accurate.
-If you feed this to Gimp's GEGL Graph filter you can get a static preview of CB. 
+If you feed this to Gimp's GEGL Graph filter you can get a static preview of CB.
 
 color-overlay value=#00eb26
 gaussian-blur std-dev-x=4 std-dev-y=4
@@ -34,7 +34,7 @@ gimp:layer-mode layer-mode=hardlight aux=[ ref=1 emboss ]
 opacity value=6
 median-blur radius=0
 
-Fun fact, Custom Bevel is the first GEGL filter to take advantage of internal blend mode swapping. No native Gimp filter does this really. I said really because gegl:bloom enables/disables the union composite mode. (but it doesn't change blend modes) and emboss has math that gives it a multiply blend mode like setting. It doesn't call gegl:multiply. Custom Bevel has settings like Gimp's "blending options" list but internally and this radically changes how the bevel appears. 
+Fun fact, Custom Bevel is the first GEGL filter to take advantage of internal blend mode swapping. No native Gimp filter does this really. I said really because gegl:bloom enables/disables the union composite mode. (but it doesn't change blend modes) and emboss has math that gives it a multiply blend mode like setting. It doesn't call gegl:multiply. Custom Bevel has settings like Gimp's "blending options" list but internally and this radically changes how the bevel appears.
  */
 
 property_enum(guichange, _("Part of filter to be displayed"),
@@ -135,8 +135,8 @@ ui_meta ("visible", "guichange {advancecustombevel}")
 
 
 
-property_double  (alphapercentile, _("Internal Median Blur Alpha percentile"), -68)
-  value_range (0, 100)
+property_double  (alphapercentile, _("Internal Median Blur Alpha percentile"), 0.0)
+  value_range (0.0, 100.0)
   description (_("Neighborhood alpha percentile"))
 
 
@@ -487,15 +487,15 @@ softlight = gegl_node_new_child (gegl,
  /*As of now (july 2023) Gimp's addition blend mode is 33, if Gimp ever gets new blend modes this will break and it will either be 32-34 or some other number. Future GEGL maintainers
 need to know this.*/
 addition = gegl_node_new_child (gegl,
-                                  "operation", "gimp:layer-mode", "layer-mode", 33, "composite-mode", 1, NULL); 
+                                  "operation", "gimp:layer-mode", "layer-mode", 33, "composite-mode", 1, NULL);
 
   embossblend   = gegl_node_new_child (gegl,
-                                  "operation", "gegl:src", 
+                                  "operation", "gegl:src",
                                   NULL);
 
 
  /*Repair GEGL Graph is a critical operation for Gimp's non-destructive future.
-A median blur at zero radius is confirmed to make no changes to an image. 
+A median blur at zero radius is confirmed to make no changes to an image.
 This option resets gegl:opacity's value to prevent a known bug where
 plugins like clay, glossy balloon and custom bevel glitch out when
 drop shadow is applied in a gegl graph below them.*/
