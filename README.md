@@ -79,9 +79,7 @@ July 2023 update makes new styles possible.
 
 
 Renders Custom Bevel Generated.
-![image](https://github.com/LinuxBeaver/GEGL-Custom-Bevel/assets/78667207/14f0a74a-3eb3-467c-af31-8264a5df66e6)
 
-**JULY 17 2023 - CUSTOM BEVEL HAS A SISTER PLUGIN. **
-https://github.com/LinuxBeaver/GEGL_sharp_bevel_gimp_plugin/
+![image](https://github.com/LinuxBeaver/GEGL-Custom-Bevel/assets/78667207/14f0a74a-3eb3-467c-af31-8264a5df66e6)
 
 Enjoy Custom Bevel. 
