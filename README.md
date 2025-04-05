@@ -14,11 +14,11 @@
  
 ### Linux 
  
- /home/(USERNAME)/.local/share/gegl-0.4/plug-ins
+`~/.local/share/gegl-0.4/plug-ins`
  
 ### Linux (Flatpak)
  
- /home/(USERNAME)/.var/app/org.gimp.GIMP/data/gegl-0.4/plug-ins
+`~/.var/app/org.gimp.GIMP/data/gegl-0.4/plug-ins`
 
 
 ![image](https://github.com/LinuxBeaver/GEGL-Custom-Bevel/assets/78667207/c25e5458-cc3c-4eef-a2d2-529ad4b51c78)
