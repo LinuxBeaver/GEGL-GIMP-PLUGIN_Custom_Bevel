@@ -23,8 +23,8 @@
 #ifdef GEGL_PROPERTIES
 
 /*
-Custom Bevel's graph recreation. You can change hardlight to other blend modes. This may not be 100% accurate.
-If you feed this to Gimp's GEGL Graph filter you can get a static preview of CB.
+Custom Bevelꞌs graph recreation. You can change hardlight to other blend modes. This may not be 100% accurate.
+If you feed this to Gimpꞌs GEGL Graph filter you can get a static preview of CB.
 
 color-overlay value=#00eb26
 gaussian-blur std-dev-x=4 std-dev-y=4
@@ -34,7 +34,7 @@ gimp:layer-mode layer-mode=hardlight aux=[ ref=1 emboss ]
 opacity value=6
 median-blur radius=0
 
-Fun fact, Custom Bevel is the first GEGL filter to take advantage of internal blend mode swapping. No native Gimp filter does this really. I said really because gegl:bloom enables/disables the union composite mode. (but it doesn't change blend modes) and emboss has math that gives it a multiply blend mode like setting. It doesn't call gegl:multiply. Custom Bevel has settings like Gimp's "blending options" list but internally and this radically changes how the bevel appears.
+Fun fact, Custom Bevel is the first GEGL filter to take advantage of internal blend mode swapping. No native Gimp filter does this really. I said really because gegl:bloom enables/disables the union composite mode. (but it doesnꞌt change blend modes) and emboss has math that gives it a multiply blend mode like setting. It doesnꞌt call gegl:multiply. Custom Bevel has settings like Gimpꞌs "blending options" list but internally and this radically changes how the bevel appears.
  */
 
 
@@ -387,7 +387,7 @@ GeglProperties *o = GEGL_PROPERTIES (operation);
                                   "operation", "gegl:color-overlay",
                                   NULL);
 
- /*filter=1 is codename of gaussian-blur filter=fir. There is no other way of calling Gaussian Blur's fir mode TMK. FIR mode displays less edge puff.*/
+ /*filter=1 is codename of gaussian-blur filter=fir. There is no other way of calling Gaussian Blurꞌs fir mode TMK. FIR mode displays less edge puff.*/
 
   gaussian    = gegl_node_new_child (gegl,
                                   "operation", "gegl:gaussian-blur",  "clip-extent", FALSE, "abyss-policy", 0,
@@ -472,23 +472,23 @@ GeglProperties *o = GEGL_PROPERTIES (operation);
 
 
 
- /*As of now (july 2023) Gimp's Grain Merge blend mode is 47, if Gimp ever gets new blend modes this will break and it will either be 46-48 or some other number. Future GEGL maintainers
+ /*As of now (july 2023) Gimpꞌs Grain Merge blend mode is 47, if Gimp ever gets new blend modes this will break and it will either be 46-48 or some other number. Future GEGL maintainers
 need to know this.*/
 grainmerge = gegl_node_new_child (gegl,
                               "operation", "gimp:layer-mode", "layer-mode", 47, "composite-mode", 1, NULL);
 
- /*As of now (july 2023) Gimp's Overlay blend mode is 23, if Gimp ever gets new blend modes this will break and it will either be 22-24 or some other number. Future GEGL maintainers
+ /*As of now (july 2023) Gimpꞌs Overlay blend mode is 23, if Gimp ever gets new blend modes this will break and it will either be 22-24 or some other number. Future GEGL maintainers
 need to know this.*/
 overlay = gegl_node_new_child (gegl,
                               "operation", "gimp:layer-mode", "layer-mode", 23, "composite-mode", 1, NULL);
 
- /*As of now (july 2023) Gimp's Softlight blend mode is 45, if Gimp ever gets new blend modes this will break and it will either be 44-46 or some other number. Future GEGL maintainers
+ /*As of now (july 2023) Gimpꞌs Softlight blend mode is 45, if Gimp ever gets new blend modes this will break and it will either be 44-46 or some other number. Future GEGL maintainers
 need to know this.*/
 softlight = gegl_node_new_child (gegl,
                               "operation", "gimp:layer-mode", "layer-mode", 45, "composite-mode", 1, NULL);
 
 
- /*As of now (july 2023) Gimp's addition blend mode is 33, if Gimp ever gets new blend modes this will break and it will either be 32-34 or some other number. Future GEGL maintainers
+ /*As of now (july 2023) Gimpꞌs addition blend mode is 33, if Gimp ever gets new blend modes this will break and it will either be 32-34 or some other number. Future GEGL maintainers
 need to know this.*/
 addition = gegl_node_new_child (gegl,
                                   "operation", "gimp:layer-mode", "layer-mode", 33, "composite-mode", 1, NULL);
@@ -498,9 +498,9 @@ addition = gegl_node_new_child (gegl,
                                   NULL);
 
 
- /*Repair GEGL Graph is a critical operation for Gimp's non-destructive future.
+ /*Repair GEGL Graph is a critical operation for Gimpꞌs non-destructive future.
 A median blur at zero radius is confirmed to make no changes to an image.
-This option resets gegl:opacity's value to prevent a known bug where
+This option resets gegl:opacityꞌs value to prevent a known bug where
 plugins like clay, glossy balloon and custom bevel glitch out when
 drop shadow is applied in a gegl graph below them.*/
    repairgeglgraph      = gegl_node_new_child (gegl, "operation", "gegl:median-blur",     "abyss-policy",     GEGL_ABYSS_NONE,
